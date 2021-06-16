@@ -79,6 +79,16 @@ namespace Ruler
             DependencyProperty.Register("MinorCount", typeof(int), typeof(CustomControl),new PropertyMetadata(DPPropertyChanged));
 
 
+
+        public bool IsHorizontal
+        {
+            get { return (bool)GetValue(IsHorizontalProperty); }
+            set { SetValue(IsHorizontalProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsHorizontalProperty =
+            DependencyProperty.Register("IsHorizontal", typeof(bool), typeof(CustomControl), new PropertyMetadata(DPPropertyChanged));
+
         public IEnumerable<TickModel> TickCollection
         {
             get { return _tickCollection; }

@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:Ruler"
         mc:Ignorable="d"        
         Title="MainWindow" Height="450" Width="800">
-    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-        <local:CustomControl MajorCount="10" MinorCount="5" UnitCMSize="30"  />
-    </Grid>
+    <Canvas>
+        <local:CustomControl Canvas.Left="100" Canvas.Top="50" MajorCount="10" MinorCount="5" UnitCMSize="30" IsHorizontal="True"  />
+        <local:CustomControl Canvas.Left="100" Canvas.Top="50" MajorCount="10" MinorCount="5" UnitCMSize="30" IsHorizontal="False"  />
+    </Canvas>
 </Window>
