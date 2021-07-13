@@ -12,14 +12,49 @@
         <converters:HeightConverter x:Key="HeightConverter" />
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:MajorTickConverter x:Key="MajorTickConverter" />
+        <converters:TickLabelMarginConverter x:Key="TickLabelMarginConverter" />
         <converters:TickMarginConverter x:Key="TickMarginConverter" />
+        <converters:AntiClockRotationConverter x:Key="AntiClockRotationConverter" />
+        <converters:TickOpacityConverter x:Key="TickOpacityConverter" />
     </UserControl.Resources>
-    <Border BorderBrush="Gray" BorderThickness="1">
-        <Grid>
-            <!--Horizontal Ticks-->
-            <ItemsControl
-                Visibility="{Binding ElementName=xControl,Path=IsHorizontal,Converter={StaticResource BoolToVisibilityConverter}}"
-                ItemsSource="{Binding ElementName=xControl,Path=TickCollection}">
+    
+    <Grid RenderTransformOrigin="0.5 0.5">
+        <Grid.RenderTransform>
+            <RotateTransform Angle="{Binding RotationAngle, ElementName=xControl,Converter={StaticResource AntiClockRotationConverter}}" />
+        </Grid.RenderTransform>
+        
+        <!--<Ellipse HorizontalAlignment="Center" VerticalAlignment="Center" Width="20" Height="20" Fill="Yellow" />-->
+
+        <ItemsControl                
+            ItemsSource="{Binding ElementName=xControl,Path=TickCollection}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Line 
+                        VerticalAlignment="Center"
+                        Visibility="{Binding IsVisible,Converter={StaticResource BoolToVisibilityConverter}}" Y2="{Binding IsMajorTick,Converter={StaticResource HeightConverter} }" Opacity="{Binding IsMajorTick,Converter={StaticResource TickOpacityConverter}}" Stroke="Red" StrokeThickness="1"/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Margin" Value="{Binding Path=Position,Converter={StaticResource TickMarginConverter}}"  />
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+        </ItemsControl>
+
+        <ItemsControl Visibility="{Binding LabelVisible, ElementName=xControl,Converter={StaticResource BoolToVisibilityConverter}}">
+            <ItemsControl.ItemsSource>
+                <MultiBinding Converter="{StaticResource MajorTickConverter}">
+                    <Binding Path="TickCollection" ElementName="xControl" />
+                    <Binding Path="ActualWidth" ElementName="xControl" />
+                </MultiBinding>
+            </ItemsControl.ItemsSource>
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <Canvas />
@@ -28,30 +63,7 @@
 
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Line Y2="{Binding IsMajorTick,Converter={StaticResource HeightConverter} }" Stroke="Red" StrokeThickness="1"/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            
-                <ItemsControl.ItemContainerStyle>
-                    <Style TargetType="ContentPresenter">
-                        <Setter Property="Canvas.Left" Value="{Binding Path=Position}" />
-                    </Style>
-                </ItemsControl.ItemContainerStyle>
-            </ItemsControl>
-
-            <!--Horizontal Tick Labels-->
-            <ItemsControl 
-                Visibility="{Binding ElementName=xControl,Path=IsHorizontal,Converter={StaticResource BoolToVisibilityConverter}}"
-                ItemsSource="{Binding ElementName=xControl,Path=TickCollection,Converter={StaticResource MajorTickConverter}}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Canvas />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                            <Label Content="{Binding ID}" Margin="{Binding Path=ActualWidth,RelativeSource={RelativeSource Self},Converter={StaticResource TickMarginConverter}}" />
+                    <Label VerticalContentAlignment="Bottom" Content="{Binding ID}" Margin="{Binding Path=ActualWidth,RelativeSource={RelativeSource Self},Converter={StaticResource TickLabelMarginConverter}}" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
 
@@ -62,51 +74,6 @@
                 </ItemsControl.ItemContainerStyle>
             </ItemsControl>
 
-            <!--Vertical Ticks-->
-            <ItemsControl
-                Visibility="{Binding ElementName=xControl,Path=IsHorizontal,Converter={StaticResource BoolToVisibilityConverter},ConverterParameter='negate'}"
-                ItemsSource="{Binding ElementName=xControl,Path=TickCollection}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Canvas />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Line X2="{Binding IsMajorTick,Converter={StaticResource HeightConverter} }" Stroke="Red" StrokeThickness="1"/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-
-                <ItemsControl.ItemContainerStyle>
-                    <Style TargetType="ContentPresenter">
-                        <Setter Property="Canvas.Top" Value="{Binding Path=Position}" />
-                    </Style>
-                </ItemsControl.ItemContainerStyle>
-            </ItemsControl>
-
-            <!--Vertical Tick Labels-->
-            <ItemsControl 
-                Visibility="{Binding ElementName=xControl,Path=IsHorizontal,Converter={StaticResource BoolToVisibilityConverter},ConverterParameter='negate'}"
-                ItemsSource="{Binding ElementName=xControl,Path=TickCollection,Converter={StaticResource MajorTickConverter}}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Canvas />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Label Content="{Binding ID}" Margin="{Binding Path=ActualHeight,RelativeSource={RelativeSource Self},Converter={StaticResource TickMarginConverter},ConverterParameter='Vertical'}" />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-
-                <ItemsControl.ItemContainerStyle>
-                    <Style TargetType="ContentPresenter">
-                        <Setter Property="Canvas.Top" Value="{Binding Path=Model.Position}" />
-                    </Style>
-                </ItemsControl.ItemContainerStyle>
-            </ItemsControl>
         </Grid>
-    </Border>
+    
 </UserControl>

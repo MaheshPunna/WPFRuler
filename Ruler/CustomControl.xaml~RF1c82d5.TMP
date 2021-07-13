@@ -1,0 +1,125 @@
+﻿<UserControl x:Class="Ruler.CustomControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Ruler"
+             xmlns:converters="clr-namespace:Ruler.Converters"
+             mc:Ignorable="d" 
+             
+             x:Name="xControl">
+    <UserControl.Resources>
+        <converters:HeightConverter x:Key="HeightConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:MajorTickConverter x:Key="MajorTickConverter" />
+        <converters:TickLabelMarginConverter x:Key="TickLabelMarginConverter" />
+        <converters:TickMarginConverter x:Key="TickMarginConverter" />
+        <converters:AntiClockRotationConverter x:Key="AntiClockRotationConverter" />
+    </UserControl.Resources>
+    
+    <Grid RenderTransformOrigin="0.5 0.5">
+            <Grid.RenderTransform>
+            <RotateTransform Angle="{Binding RotationAngle, ElementName=xControl,Converter={StaticResource AntiClockRotationConverter}}"
+                     CenterX="0.5" 
+                     CenterY="0.5"/>
+            </Grid.RenderTransform>
+            <!--Horizontal Ticks-->
+            <ItemsControl
+                Visibility="{Binding ElementName=xControl,Path=IsHorizontal,Converter={StaticResource BoolToVisibilityConverter}}"
+                ItemsSource="{Binding ElementName=xControl,Path=TickCollection}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                    <Grid />
+                </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Line Y2="{Binding IsMajorTick,Converter={StaticResource HeightConverter} }" Stroke="Red" StrokeThickness="1"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                    <Setter Property="Margin" Value="{Binding Path=Position,Converter={StaticResource TickMarginConverter}}"  />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+            </ItemsControl>
+
+            <!--Horizontal Tick Labels-->
+            <ItemsControl 
+                Visibility="{Binding ElementName=xControl,Path=IsHorizontal,Converter={StaticResource BoolToVisibilityConverter}}"
+                >
+            <ItemsControl.ItemsSource>
+                <MultiBinding Converter="{StaticResource MajorTickConverter}">
+                    <Binding Path="TickCollection" ElementName="xControl" />
+                    <Binding Path="ActualWidth" ElementName="xControl" />
+                </MultiBinding>
+            </ItemsControl.ItemsSource>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                    <Label VerticalContentAlignment="Bottom" Content="{Binding ID}" Margin="{Binding Path=ActualWidth,RelativeSource={RelativeSource Self},Converter={StaticResource TickLabelMarginConverter}}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Canvas.Left" Value="{Binding Path=Model.Position}" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+            </ItemsControl>
+
+            <!--Vertical Ticks-->
+            <ItemsControl
+                Visibility="{Binding ElementName=xControl,Path=IsHorizontal,Converter={StaticResource BoolToVisibilityConverter},ConverterParameter='negate'}"
+                ItemsSource="{Binding ElementName=xControl,Path=TickCollection}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Line X2="{Binding IsMajorTick,Converter={StaticResource HeightConverter} }" Stroke="Red" StrokeThickness="1"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                    <Setter Property="Margin" Value="{Binding Path=Position,Converter={StaticResource TickMarginConverter},ConverterParameter='Vertical'}" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+            </ItemsControl>
+
+            <!--Vertical Tick Labels-->
+            <ItemsControl 
+                Visibility="{Binding ElementName=xControl,Path=IsHorizontal,Converter={StaticResource BoolToVisibilityConverter},ConverterParameter='negate'}"
+                ItemsSource="{Binding ElementName=xControl,Path=TickCollection,Converter={StaticResource MajorTickConverter},ConverterParameter='vertical'}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                    <Label HorizontalContentAlignment="Right" Content="{Binding ID}" Margin="{Binding Path=ActualHeight,RelativeSource={RelativeSource Self},Converter={StaticResource TickLabelMarginConverter},ConverterParameter='Vertical'}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Canvas.Top" Value="{Binding Path=Model.Position}" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+            </ItemsControl>
+        </Grid>
+    
+</UserControl>

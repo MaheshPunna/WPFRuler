@@ -9,17 +9,34 @@ using System.Windows.Data;
 
 namespace Ruler.Converters
 {
-    public class MajorTickConverter : IValueConverter
+    public class MajorTickConverter : IMultiValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value == null || value == DependencyProperty.UnsetValue)
+            if (values.Any(p => p== null|| p == DependencyProperty.UnsetValue) || double.Parse(values[1].ToString()) == 0)
                 return Binding.DoNothing;
 
-            return (value as List<TickModel>).Where(p => p.IsMajorTick).Select((p, I) => new { ID = I , Model = p });
-        }
+            var isVertical = parameter != null;
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            var actualWidth = double.Parse(values[1].ToString());
+
+            var FitCount = (int)(actualWidth / 15);
+            
+            var majorTicks = (values[0] as List<TickModel>).Where(p => p.IsMajorTick);
+
+            var majorTickCount = majorTicks.Count();
+            var Skip = (int)Math.Round((double)majorTickCount / FitCount);
+
+
+            var StartIndex = -(int)(majorTickCount / 2);
+
+            var tickLabels = majorTicks.Select((p, I) => new { ID = isVertical ? -StartIndex - I : I + StartIndex, Model = p, Index = I });
+
+            var filteredLabels = Skip != 0 ? tickLabels.Where(p => p.ID % Skip == 0) : tickLabels;
+
+            return filteredLabels;
+        }
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

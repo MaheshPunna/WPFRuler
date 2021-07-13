@@ -23,6 +23,24 @@ namespace Ruler
         public MainWindow()
         {
             InitializeComponent();
+
+            this.Loaded += (s, e) => {
+
+                foreach (FrameworkElement Child in ParentCanvas.Children)
+                {
+                    Canvas.SetLeft(Child, ParentCanvas.Width / 2 - Child.ActualWidth / 2);
+                    Canvas.SetTop(Child, ParentCanvas.Height / 2 - Child.ActualHeight / 2);
+                }
+            };
+        }
+
+        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            try
+            {
+                Slider.Value = double.Parse((sender as TextBox).Text);
+            }
+            catch (Exception ex) { }
         }
     }
 }

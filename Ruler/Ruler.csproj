@@ -67,10 +67,12 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Converters\AntiClockRotationConverter.cs" />
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="Converters\HeightConverter.cs" />
     <Compile Include="Converters\MajorTickConverter.cs" />
     <Compile Include="Converters\TickMarginConverter.cs" />
+    <Compile Include="Converters\TickOpacityConverter.cs" />
     <Compile Include="CustomControl.xaml.cs">
       <DependentUpon>CustomControl.xaml</DependentUpon>
     </Compile>
