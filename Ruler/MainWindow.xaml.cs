@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,27 +21,36 @@ namespace Ruler
     /// </summary>
     public partial class MainWindow : Window
     {
+        bool _IsDrawing;
+        Point StartPoint;
         public MainWindow()
         {
             InitializeComponent();
 
-            this.Loaded += (s, e) => {
-
-                foreach (FrameworkElement Child in ParentCanvas.Children)
+            this.MouseDown += (s, e) =>
+            {
+                if (!_IsDrawing)
                 {
-                    Canvas.SetLeft(Child, ParentCanvas.Width / 2 - Child.ActualWidth / 2);
-                    Canvas.SetTop(Child, ParentCanvas.Height / 2 - Child.ActualHeight / 2);
+                    StartPoint = Mouse.GetPosition(ParentCanvas);
+
+                    Canvas.SetLeft(H1, StartPoint.X);
+                    Canvas.SetTop(H1, StartPoint.Y - H1.ActualHeight / 2);
+
+                    H1.ControlWidth = 0;
+                }
+                _IsDrawing = !_IsDrawing;
+            };
+            this.MouseMove += (s, e) => {
+
+                if (_IsDrawing)
+                {
+                    var MousePoint = Mouse.GetPosition(ParentCanvas);
+
+                    H1.ControlWidth = Point.Subtract(MousePoint,StartPoint).Length;
+
+                    H1.RotationAngle = -1* Math.Atan2(MousePoint.Y - StartPoint.Y, MousePoint.X - StartPoint.X) * 180.0 / Math.PI;
                 }
             };
-        }
-
-        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            try
-            {
-                Slider.Value = double.Parse((sender as TextBox).Text);
-            }
-            catch (Exception ex) { }
         }
     }
 }

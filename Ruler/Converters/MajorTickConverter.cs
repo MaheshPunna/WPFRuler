@@ -16,8 +16,6 @@ namespace Ruler.Converters
             if (values.Any(p => p== null|| p == DependencyProperty.UnsetValue) || double.Parse(values[1].ToString()) == 0)
                 return Binding.DoNothing;
 
-            var isVertical = parameter != null;
-
             var actualWidth = double.Parse(values[1].ToString());
 
             var FitCount = (int)(actualWidth / 15);
@@ -28,9 +26,9 @@ namespace Ruler.Converters
             var Skip = (int)Math.Round((double)majorTickCount / FitCount);
 
 
-            var StartIndex = -(int)(majorTickCount / 2);
+            var StartIndex = 0;
 
-            var tickLabels = majorTicks.Select((p, I) => new { ID = isVertical ? -StartIndex - I : I + StartIndex, Model = p, Index = I });
+            var tickLabels = majorTicks.Select((p, I) => new { ID = I + StartIndex, Model = p, Index = I });
 
             var filteredLabels = Skip != 0 ? tickLabels.Where(p => p.ID % Skip == 0) : tickLabels;
 

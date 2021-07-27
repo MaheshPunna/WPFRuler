@@ -135,42 +135,69 @@ namespace Ruler
 
         public void UpdateTickCollection()
         {
-            var Length = Math.Sqrt(Math.Pow(ControlWidth,2)+ Math.Pow(ControlHeight,2));
-            var MajorCount = Length / (UnitCMSize);
+            var MajorCount = ControlWidth / (UnitCMSize);
 
-            if (double.IsNaN(MajorCount)|| double.IsInfinity(MajorCount) || MajorCount == 0)
+            if (double.IsNaN(MajorCount) || double.IsInfinity(MajorCount) || MajorCount == 0)
+            {
+                TickCollection = new List<TickModel>();
                 return;
+            }
 
-            var m_count = (int)(MajorCount - (MajorCount%2));
+            var IntMajorCount = (int)MajorCount;
+            var Frac_MinorTicks = (MajorCount - IntMajorCount)*MinorCount;
 
-            var remaining_fraction= (MajorCount - m_count) / 2.0;
+            var _majorTicks = Enumerable.Range(0, IntMajorCount).Select((p, Index) => new TickModel() { IsMajorTick = true, Position = Index * UnitCMSize });
 
-            var Offset = remaining_fraction * UnitCMSize;
-
-            var _majorTicks = Enumerable.Range(0, m_count).Select((p, Index) => new TickModel() { IsMajorTick = true, Position = Index * UnitCMSize + Offset });
 
             var DecimalUnitCMSize = UnitCMSize / MinorCount;
             var _minorTicks = _majorTicks.SelectMany(tick => Enumerable.Range(0, MinorCount).Select((p, Index) => new TickModel() { IsMajorTick = false, Position = tick.Position + Index * DecimalUnitCMSize }));
 
-
-            if (_minorTicks.Count() > 0)
-                _majorTicks = _majorTicks.Append(new TickModel() { IsMajorTick = true, Position = _minorTicks.Last().Position + DecimalUnitCMSize });
+            _majorTicks = _majorTicks.Append(new TickModel() { IsMajorTick = true, Position = IntMajorCount * UnitCMSize });
 
             var all_ticks = _majorTicks.Concat(_minorTicks);
-
-            var _fractional_minor_ticks = (int)(remaining_fraction * MinorCount);
-            if (all_ticks.Count() > 0)
+            if(all_ticks.Count() > 0)
             {
-                for (var I = 1; I <= _fractional_minor_ticks; I++)
-                {
-                    all_ticks = all_ticks.Prepend(new TickModel() { IsMajorTick = false, Position = _majorTicks.First().Position - I*DecimalUnitCMSize });
-                    all_ticks = all_ticks.Append(new TickModel() { IsMajorTick = false, Position = _majorTicks.Last().Position + I*DecimalUnitCMSize });
-                }
+                for (var I = 1; I <= Frac_MinorTicks; I++)                
+                    all_ticks = all_ticks.Append(new TickModel() { IsMajorTick = false, Position = _majorTicks.Last().Position + I * DecimalUnitCMSize });                
             }
-            all_ticks = all_ticks.Prepend(new TickModel() { IsEndMarker = true,IsVisible=false, Position = 0 });
-            all_ticks = all_ticks.Append(new TickModel() { IsEndMarker = true,IsVisible=false, Position = UnitCMSize * MajorCount });
-
             TickCollection = new List<TickModel>(all_ticks);
+
+            //var Length = Math.Sqrt(Math.Pow(ControlWidth,2)+ Math.Pow(ControlHeight,2));
+            //var MajorCount = Length / (UnitCMSize);
+
+            //if (double.IsNaN(MajorCount)|| double.IsInfinity(MajorCount) || MajorCount == 0)
+            //    return;
+
+            //var m_count = (int)(MajorCount - (MajorCount%2));
+
+            //var remaining_fraction= (MajorCount - m_count) / 2.0;
+
+            //var Offset = remaining_fraction * UnitCMSize;
+
+            //var _majorTicks = Enumerable.Range(0, m_count).Select((p, Index) => new TickModel() { IsMajorTick = true, Position = Index * UnitCMSize + Offset });
+
+            //var DecimalUnitCMSize = UnitCMSize / MinorCount;
+            //var _minorTicks = _majorTicks.SelectMany(tick => Enumerable.Range(0, MinorCount).Select((p, Index) => new TickModel() { IsMajorTick = false, Position = tick.Position + Index * DecimalUnitCMSize }));
+
+
+            //if (_minorTicks.Count() > 0)
+            //    _majorTicks = _majorTicks.Append(new TickModel() { IsMajorTick = true, Position = _minorTicks.Last().Position + DecimalUnitCMSize });
+
+            //var all_ticks = _majorTicks.Concat(_minorTicks);
+
+            //var _fractional_minor_ticks = (int)(remaining_fraction * MinorCount);
+            //if (all_ticks.Count() > 0)
+            //{
+            //    for (var I = 1; I <= _fractional_minor_ticks; I++)
+            //    {
+            //        all_ticks = all_ticks.Prepend(new TickModel() { IsMajorTick = false, Position = _majorTicks.First().Position - I*DecimalUnitCMSize });
+            //        all_ticks = all_ticks.Append(new TickModel() { IsMajorTick = false, Position = _majorTicks.Last().Position + I*DecimalUnitCMSize });
+            //    }
+            //}
+            //all_ticks = all_ticks.Prepend(new TickModel() { IsEndMarker = true,IsVisible=false, Position = 0 });
+            //all_ticks = all_ticks.Append(new TickModel() { IsEndMarker = true,IsVisible=false, Position = UnitCMSize * MajorCount });
+
+            //TickCollection = new List<TickModel>(all_ticks);
         }
     }
 }
